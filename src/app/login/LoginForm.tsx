@@ -7,9 +7,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 
+// Friendly copy for the error codes Better Auth appends to errorCallbackURL
+// when magic-link verification fails.
+const ERROR_MESSAGES: Record<string, string> = {
+  INVALID_TOKEN:
+    "That sign-in link expired or was already used. Request a fresh one below.",
+  new_user_signup_disabled: "Sign-ups are currently closed.",
+  failed_to_create_user: "We couldn't set up your account. Try again below.",
+  user_not_found: "We couldn't find that account. Request a new link below.",
+  failed_to_create_session:
+    "We couldn't start your session. Request a new link below.",
+};
+
 export function LoginForm() {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") ?? "/feed";
+  const errorCode = searchParams.get("error");
+  const errorMessage = errorCode
+    ? (ERROR_MESSAGES[errorCode] ??
+      "We couldn't sign you in with that link. Request a new one below.")
+    : null;
   const [email, setEmail] = useState("");
   const [sent, setSent] = useState(false);
   const [isPending, startTransition] = useTransition();
@@ -21,6 +38,7 @@ export function LoginForm() {
       const result = await signIn.magicLink({
         email: email.trim(),
         callbackURL: redirectTo,
+        errorCallbackURL: "/login",
       });
       if (result.error) {
         toast.error(result.error.message ?? "Failed to send link");
@@ -44,6 +62,14 @@ export function LoginForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      {errorMessage && (
+        <div
+          role="alert"
+          className="rounded-lg border border-destructive/30 bg-destructive/10 px-3 py-2.5 text-sm text-destructive"
+        >
+          {errorMessage}
+        </div>
+      )}
       <div className="space-y-2">
         <label htmlFor="email" className="text-sm font-medium">
           Email address
