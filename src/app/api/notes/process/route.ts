@@ -1,4 +1,4 @@
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { getDbOrThrow } from "@/lib/db";
 import { note } from "@/lib/schema";
 import { getSession } from "@/lib/session";
@@ -13,29 +13,38 @@ export async function POST(request: Request) {
     return new Response("Unauthorized", { status: 401 });
   }
 
-  const { noteId, body } = (await request.json()) as {
-    noteId: string;
-    body: string;
-  };
+  const { noteId } = (await request.json()) as { noteId: string };
 
-  if (!noteId || !body) {
-    return new Response("Missing noteId or body", { status: 400 });
+  if (!noteId) {
+    return new Response("Missing noteId", { status: 400 });
   }
 
   const db = getDbOrThrow();
 
-  // Verify ownership
-  const [noteRow] = await db
-    .select({ id: note.id })
-    .from(note)
-    .where(eq(note.id, noteId));
+  // Atomically claim the job: only a pending note owned by this user can be
+  // processed, and only once. This enforces ownership AND prevents a second
+  // POST from re-running the agent and inserting duplicate extractions.
+  const claimed = await db
+    .update(note)
+    .set({ processingStatus: "processing", updatedAt: new Date() })
+    .where(
+      and(
+        eq(note.id, noteId),
+        eq(note.userId, session.user.id),
+        eq(note.processingStatus, "pending"),
+      ),
+    )
+    .returning({ id: note.id, body: note.body });
 
-  if (!noteRow) {
-    return new Response("Note not found", { status: 404 });
+  if (claimed.length === 0) {
+    // Either the note doesn't exist / isn't ours, or it's already being
+    // processed or done. Nothing to do.
+    return new Response("Note not available for processing", { status: 409 });
   }
 
-  // Stream the agent's text reasoning back to the client
-  const result = runNoteAgent(body, noteId, session.user.id, db);
+  // Use the stored body, not the client-sent one, so the agent always
+  // processes exactly what was persisted.
+  const result = runNoteAgent(claimed[0].body, noteId, session.user.id, db);
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream({

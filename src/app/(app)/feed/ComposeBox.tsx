@@ -39,12 +39,16 @@ export function ComposeBox() {
       const res = await fetch("/api/notes/process", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ noteId: result.noteId, body: draft }),
+        body: JSON.stringify({ noteId: result.noteId }),
         signal: abortRef.current.signal,
       });
 
-      if (!res.body) {
+      // Non-OK (e.g. 409 already processing, 401) — the note is saved; just
+      // refresh so it shows up and let the server settle its status.
+      if (!res.ok || !res.body) {
         setAgentStatus("");
+        await revalidateFeed();
+        router.refresh();
         return;
       }
 

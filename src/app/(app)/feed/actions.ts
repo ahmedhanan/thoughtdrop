@@ -5,12 +5,23 @@ import { and, eq } from "drizzle-orm";
 import { getDbOrThrow } from "@/lib/db";
 import { note } from "@/lib/schema";
 import { requireUser } from "@/lib/session";
+import { checkNoteQuota } from "@/lib/ratelimit";
+
+const MAX_NOTE_LEN = 10_000;
 
 export async function createNote(body: string) {
   const user = await requireUser();
   const db = getDbOrThrow();
   const trimmed = body.trim();
   if (!trimmed) return { error: "Note cannot be empty." };
+  if (trimmed.length > MAX_NOTE_LEN) {
+    return { error: `Note is too long (max ${MAX_NOTE_LEN.toLocaleString()} characters).` };
+  }
+
+  const quota = await checkNoteQuota(db, user.id);
+  if (!quota.ok) {
+    return { error: `You're dropping notes too fast — try again in ${quota.retryAfter}.` };
+  }
 
   const [saved] = await db
     .insert(note)
