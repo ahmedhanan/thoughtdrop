@@ -2,6 +2,7 @@ import { desc, eq, and, ilike, inArray } from "drizzle-orm";
 import { requireUser } from "@/lib/session";
 import { getDbOrThrow } from "@/lib/db";
 import { note, extraction, tag, noteTag } from "@/lib/schema";
+import { LogoMark } from "@/components/Logo";
 import { ComposeBox } from "./ComposeBox";
 import { NoteCard } from "./NoteCard";
 import { TagFilter } from "./TagFilter";
@@ -97,6 +98,7 @@ export default async function FeedPage({
         ))}
         {notes.length === 0 && (
           <div className="text-center py-16 text-muted-foreground">
+            <LogoMark className="size-10 mx-auto mb-4 text-muted-foreground/30" />
             <p className="text-lg">
               {sp.q || sp.tag ? "No notes match your filter." : "No notes yet."}
             </p>

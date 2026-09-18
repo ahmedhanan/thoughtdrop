@@ -2,6 +2,7 @@ import { desc, eq } from "drizzle-orm";
 import { requireUser } from "@/lib/session";
 import { getDbOrThrow } from "@/lib/db";
 import { extraction, note } from "@/lib/schema";
+import { LogoMark } from "@/components/Logo";
 import { TaskList } from "./TaskList";
 
 export default async function TasksPage() {
@@ -41,6 +42,7 @@ export default async function TasksPage() {
 
       {taskRows.length === 0 ? (
         <div className="text-center py-16 text-muted-foreground">
+          <LogoMark className="size-10 mx-auto mb-4 text-muted-foreground/30" />
           <p className="text-lg">No tasks yet.</p>
           <p className="text-sm mt-1">
             Write a note with action items and the AI will extract them here.

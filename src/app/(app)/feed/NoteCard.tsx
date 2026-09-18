@@ -2,7 +2,15 @@
 
 import { useState, useTransition } from "react";
 import Link from "next/link";
-import { Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Trash2,
+  ChevronDown,
+  ChevronUp,
+  ArrowRight,
+  User,
+  Calendar,
+  type LucideIcon,
+} from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
@@ -14,11 +22,10 @@ type NoteTagRow = { noteId: string; tagName: string; tagId: string };
 
 const BODY_LIMIT = 300;
 
-const TYPE_ICONS: Record<string, string> = {
-  task: "✓",
-  decision: "→",
-  person: "👤",
-  event: "📅",
+const TYPE_ICONS: Record<string, LucideIcon> = {
+  decision: ArrowRight,
+  person: User,
+  event: Calendar,
 };
 
 export function NoteCard({
@@ -124,10 +131,12 @@ export function NoteCard({
             <TaskRow key={e.id} extraction={e} />
           ))}
           {/* Other extractions */}
-          {others.map((e) => (
+          {others.map((e) => {
+            const Icon = TYPE_ICONS[e.type];
+            return (
             <div key={e.id} className="flex items-start gap-2 text-sm">
-              <span className="text-muted-foreground text-xs mt-0.5 w-4 shrink-0">
-                {TYPE_ICONS[e.type] ?? "•"}
+              <span className="text-primary/70 mt-0.5 shrink-0">
+                {Icon ? <Icon className="size-3.5" /> : <span className="text-xs">•</span>}
               </span>
               <span className="text-muted-foreground leading-snug">
                 {e.content}
@@ -139,7 +148,8 @@ export function NoteCard({
                 )}
               </span>
             </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

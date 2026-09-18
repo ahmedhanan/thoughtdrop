@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createNote, revalidateFeed } from "./actions";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import { LogoMark } from "@/components/Logo";
 import { toast } from "sonner";
 
 const MAX = 10_000;
@@ -81,7 +82,13 @@ export function ComposeBox() {
   }
 
   return (
-    <div className="rounded-xl border border-border bg-card shadow-sm">
+    <div className="relative rounded-xl border border-border bg-card shadow-sm">
+      {isSubmitting && (
+        <span
+          className="pointer-events-none absolute inset-0 rounded-xl border-2 border-primary/40 animate-ripple"
+          aria-hidden="true"
+        />
+      )}
       <div className="p-4">
         <Textarea
           value={body}
@@ -97,8 +104,9 @@ export function ComposeBox() {
       <div className="px-4 pb-4 flex items-center justify-between gap-4">
         <div className="flex-1 min-w-0">
           {agentStatus ? (
-            <p className="text-xs text-muted-foreground truncate animate-pulse">
-              {agentStatus}
+            <p className="text-xs text-muted-foreground truncate flex items-center gap-1.5">
+              <LogoMark className="size-3.5 animate-pulse" />
+              <span className="truncate">{agentStatus}</span>
             </p>
           ) : (
             <span className="text-xs text-muted-foreground">

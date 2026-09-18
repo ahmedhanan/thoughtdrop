@@ -4,6 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
+import { Logo } from "@/components/Logo";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
 const links = [
@@ -18,8 +20,8 @@ export function AppNav({ userEmail }: { userEmail: string }) {
     <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-10">
       <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
         <div className="flex items-center gap-6">
-          <Link href="/feed" className="font-semibold text-sm">
-            ThoughtDrop
+          <Link href="/feed">
+            <Logo />
           </Link>
           <nav className="flex items-center gap-1">
             {links.map(({ href, label }) => (
@@ -38,10 +40,11 @@ export function AppNav({ userEmail }: { userEmail: string }) {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
           <span className="text-xs text-muted-foreground hidden sm:block">
             {userEmail}
           </span>
+          <ThemeToggle />
           <Button
             variant="ghost"
             size="sm"
