@@ -4,9 +4,13 @@ import { extraction, note, user } from "@/lib/schema";
 import { todayInTz, safeZone } from "@/lib/datetime";
 import { sendTaskReminderEmail } from "@/lib/email";
 
+// Vercel: run in UTC, once daily (see vercel.json). Hobby plan allows up to
+// 60s of function execution — give the sequential email sends headroom.
+export const maxDuration = 60;
+
 // Max reminder emails to send per invocation (guards against a huge backlog
-// blowing the request budget / Resend quota).
-const SEND_CAP = 100;
+// blowing the request budget / Resend quota, and staying within maxDuration).
+const SEND_CAP = 50;
 // How many candidate rows to scan per invocation.
 const SCAN_LIMIT = 500;
 
