@@ -20,6 +20,7 @@ export const user = pgTable("user", {
   email: text("email").notNull().unique(),
   emailVerified: boolean("email_verified").notNull().default(false),
   image: text("image"),
+  timezone: text("timezone").notNull().default("UTC"), // IANA zone (app extension)
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
@@ -103,6 +104,7 @@ export const extraction = pgTable(
     content: text("content").notNull(),
     metadata: jsonb("metadata").$type<Record<string, string | undefined>>(),
     completed: boolean("completed").notNull().default(false),
+    reminderSentAt: timestamp("reminder_sent_at", { withTimezone: true }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   },
   (t) => [

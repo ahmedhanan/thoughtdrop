@@ -36,6 +36,18 @@ export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   baseURL: process.env.BETTER_AUTH_URL,
   emailAndPassword: { enabled: false },
+  // Expose the writer's timezone on the session user (we set it ourselves from
+  // the browser, so it's not user-settable input).
+  user: {
+    additionalFields: {
+      timezone: {
+        type: "string",
+        required: false,
+        defaultValue: "UTC",
+        input: false,
+      },
+    },
+  },
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {

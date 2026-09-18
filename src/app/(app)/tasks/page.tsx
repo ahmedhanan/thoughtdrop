@@ -3,11 +3,15 @@ import { requireUser } from "@/lib/session";
 import { getDbOrThrow } from "@/lib/db";
 import { extraction, note } from "@/lib/schema";
 import { LogoMark } from "@/components/Logo";
+import { todayInTz, safeZone } from "@/lib/datetime";
 import { TaskList } from "./TaskList";
 
 export default async function TasksPage() {
   const user = await requireUser();
   const db = getDbOrThrow();
+  const todayIso = todayInTz(
+    safeZone((user as { timezone?: string }).timezone ?? "UTC"),
+  ).iso;
 
   const tasks = await db
     .select({
@@ -17,6 +21,7 @@ export default async function TasksPage() {
       content: extraction.content,
       metadata: extraction.metadata,
       completed: extraction.completed,
+      reminderSentAt: extraction.reminderSentAt,
       createdAt: extraction.createdAt,
       note: {
         id: note.id,
@@ -49,7 +54,7 @@ export default async function TasksPage() {
           </p>
         </div>
       ) : (
-        <TaskList tasks={taskRows} />
+        <TaskList tasks={taskRows} todayIso={todayIso} />
       )}
     </div>
   );

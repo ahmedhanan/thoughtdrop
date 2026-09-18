@@ -3,6 +3,7 @@ import { getDbOrThrow } from "@/lib/db";
 import { note } from "@/lib/schema";
 import { getSession } from "@/lib/session";
 import { runNoteAgent } from "@/lib/agent";
+import { todayInTz, safeZone } from "@/lib/datetime";
 import { headers } from "next/headers";
 import { auth } from "@/lib/auth";
 
@@ -44,7 +45,13 @@ export async function POST(request: Request) {
 
   // Use the stored body, not the client-sent one, so the agent always
   // processes exactly what was persisted.
-  const result = runNoteAgent(claimed[0].body, noteId, session.user.id, db);
+  const tz = safeZone(
+    (session.user as { timezone?: string }).timezone ?? "UTC",
+  );
+  const result = runNoteAgent(claimed[0].body, noteId, session.user.id, db, {
+    tz,
+    todayLabel: todayInTz(tz).label,
+  });
 
   const encoder = new TextEncoder();
   const readable = new ReadableStream({

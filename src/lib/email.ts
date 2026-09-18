@@ -105,6 +105,43 @@ export function renderBrandedEmail({
 </html>`;
 }
 
+export async function sendTaskReminderEmail(
+  email: string,
+  opts: { taskContent: string; dueDate: string },
+) {
+  const resend = getResend();
+  const tasksUrl = `${APP_URL}/tasks`;
+  if (!resend) {
+    console.log(
+      `\n⏰ Task reminder for ${email}: "${opts.taskContent}" (due ${opts.dueDate})\n`,
+    );
+    return;
+  }
+  await resend.emails.send({
+    from: FROM,
+    to: email,
+    subject: `Reminder: ${opts.taskContent}`,
+    html: renderBrandedEmail({
+      previewText: `A task is due: ${opts.taskContent}`,
+      heading: "A task is due",
+      paragraphs: [
+        `<strong style="color:${C.ink}">${escapeHtml(opts.taskContent)}</strong>`,
+        `Due ${escapeHtml(opts.dueDate)}. Open ThoughtDrop to mark it done or reschedule.`,
+      ],
+      cta: { label: "View your tasks", url: tasksUrl },
+    }),
+    text: `Reminder — a task is due: ${opts.taskContent} (due ${opts.dueDate}).\nView your tasks: ${tasksUrl}`,
+  });
+}
+
+function escapeHtml(s: string): string {
+  return s
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;");
+}
+
 export async function sendMagicLinkEmail(email: string, url: string) {
   const resend = getResend();
   if (!resend) {
