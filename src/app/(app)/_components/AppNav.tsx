@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { signOut } from "@/lib/auth-client";
 import { Button } from "@/components/ui/button";
-import { Logo } from "@/components/Logo";
+import { LogoMark } from "@/components/Logo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
@@ -18,10 +18,14 @@ export function AppNav({ userEmail }: { userEmail: string }) {
 
   return (
     <header className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-10">
-      <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-        <div className="flex items-center gap-6">
-          <Link href="/feed">
-            <Logo />
+      <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 sm:gap-6 min-w-0">
+          <Link href="/feed" className="flex items-center gap-2 shrink-0">
+            <LogoMark className="size-6" />
+            {/* Wordmark hides on the smallest screens to keep the nav from crowding */}
+            <span className="font-serif text-lg font-medium tracking-tight hidden sm:inline">
+              ThoughtDrop
+            </span>
           </Link>
           <nav className="flex items-center gap-1">
             {links.map(({ href, label }) => (
@@ -29,7 +33,7 @@ export function AppNav({ userEmail }: { userEmail: string }) {
                 key={href}
                 href={href}
                 className={cn(
-                  "text-sm px-3 py-1.5 rounded-md transition-colors",
+                  "text-sm px-2.5 sm:px-3 py-1.5 rounded-md transition-colors",
                   pathname.startsWith(href)
                     ? "bg-muted text-foreground font-medium"
                     : "text-muted-foreground hover:text-foreground hover:bg-muted/50",
@@ -40,8 +44,8 @@ export function AppNav({ userEmail }: { userEmail: string }) {
             ))}
           </nav>
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-xs text-muted-foreground hidden sm:block">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+          <span className="text-xs text-muted-foreground hidden md:block max-w-[16ch] truncate">
             {userEmail}
           </span>
           <ThemeToggle />

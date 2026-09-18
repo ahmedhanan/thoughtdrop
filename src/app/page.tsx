@@ -23,7 +23,7 @@ export default function LandingPage() {
           <HeroAnimation />
 
           <div className="space-y-5">
-            <h1 className="text-5xl font-medium tracking-tight leading-[1.1]">
+            <h1 className="text-4xl sm:text-5xl font-medium tracking-tight leading-[1.1]">
               Drop your thoughts.
               <br />
               <span className="text-primary">Get structure back.</span>
